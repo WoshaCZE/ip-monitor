@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Monitor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="projectDashboard">
+            <h2>Project Dashboard</h2>
+            <input type="text" id="newProjectName" placeholder="Enter new project name">
+            <button id="createProjectButton">Create Project</button>
+            <ul id="projectList">
+                <!-- Project items will be listed here -->
+            </ul>
+        </div>
+
+        <div id="projectDetailView" class="hidden">
+            <button id="backToDashboardButton">Back to Dashboard</button>
+            <h2 id="projectDetailTitle">Project: Default</h2>
+
+            <div id="controlsBar">
+                <input type="file" id="fileInput" accept=".csv,.xlsx">
+                <button id="loadButton" disabled>Load CSV/XLSX</button>
+                <select id="pingIntervalSelect">
+                    <option value="5000">5 s</option>
+                    <option value="10000" selected>10 s</option>
+                    <option value="15000">15 s</option>
+                    <option value="30000">30 s</option>
+                    <option value="60000">60 s</option>
+                </select>
+                <button id="startButton" disabled>Start Ping</button>
+                <button id="stopButton" class="hidden">Stop Ping</button>
+                <button id="exportButton" disabled>Export to XLSX</button>
+            </div>
+
+            <p id="statusMessage"></p>
+
+            <div id="tableContainer" style="overflow-x: auto;">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Server Name</th>
+                        <th>Primary IP</th>
+                        <th>IPMI IP</th>
+                        <th>Last Ping (Primary IP)</th>
+                        <th>Last Ping (IPMI IP)</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    <!-- Results will be populated here by script.js -->
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastNotification" class="toast"></div>
+
+    <script src="lib/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
