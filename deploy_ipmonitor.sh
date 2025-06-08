@@ -23,7 +23,7 @@ NGINX_SERVER_NAME="_" # Replace with your_domain.com or server_ip if desired
 echo "Starting IP Monitor application deployment..."
 
 # Ensure the script is run as root/sudo
-if [[ \$(id -u) -ne 0 ]]; then
+if [[ $(id -u) -ne 0 ]]; then
   echo "Please run this script with sudo or as root."
   exit 1
 fi
