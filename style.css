@@ -1,0 +1,428 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    padding: 20px 10px; /* Adjusted padding for smaller screens */
+    box-sizing: border-box;
+}
+
+.login-container {
+    background-color: white;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    margin: auto; /* Center on very small screens if body padding is not enough */
+}
+
+h1 {
+    margin-bottom: 1em;
+    color: #333;
+}
+
+#loginForm input[type="text"],
+#loginForm input[type="password"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#loginButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#loginButton:hover {
+    background-color: #0056b3;
+}
+
+#errorMessage {
+    color: red;
+    margin-top: 1em;
+    min-height: 1.2em;
+}
+
+/* App container styles */
+.app-container {
+    width: 100%; /* Take full width available from body padding */
+    max-width: 1200px; /* Increased max-width for larger screens */
+    background-color: white;
+    padding: 1.5em; /* Slightly reduced padding for smaller screens */
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+/* Project Dashboard styles */
+#projectDashboard h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+#projectDashboard input[type="text"] {
+    width: calc(70% - 12px);
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#projectDashboard button {
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+#projectDashboard button:hover:not([disabled]) {
+    background-color: #218838;
+}
+
+#projectList {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 1.5em;
+}
+
+#projectList li {
+    background-color: #e9ecef;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#projectList li:hover {
+    background-color: #ced4da;
+}
+
+/* Project Detail View styles */
+#projectDetailView {
+    width: 100%;
+}
+
+#projectDetailView h2#projectDetailTitle {
+    color: #333;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+}
+
+#backToDashboardButton {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.8em;
+    margin-bottom: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#backToDashboardButton:hover:not([disabled]) {
+    background-color: #5a6268;
+}
+
+#controlsBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 1.5em; /* Increased margin */
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+#controlsBar input[type="file"],
+#controlsBar button,
+#controlsBar select {
+    padding: 8px 12px;
+    font-size: 0.9em;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: #e9ecef;
+    cursor: pointer;
+    flex-grow: 1; /* Allow items to grow */
+    min-width: 120px; /* Minimum width for better wrapping */
+}
+#controlsBar input[type="file"]{
+    background-color: white; /* File input usually white */
+}
+
+
+#controlsBar button:hover:not([disabled]), #controlsBar select:hover {
+    background-color: #dee2e6;
+}
+
+/* General button disabled state - already quite good with opacity */
+button:disabled, button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    /* background-color: #cccccc; */ /* Optional: more distinct disabled background */
+    /* color: #666666; */         /* Optional: different text color for disabled */
+}
+/* Specific button styling will override this if :disabled is also specified there */
+
+
+#startButton {
+    background-color: #28a745;
+    color: white;
+}
+#startButton:hover:not([disabled]) {
+    background-color: #218838;
+}
+
+#stopButton {
+    background-color: #dc3545;
+    color: white;
+}
+#stopButton:hover:not([disabled]) {
+    background-color: #c82333;
+}
+
+#exportButton {
+    background-color: #17a2b8;
+    color: white;
+}
+#exportButton:hover:not([disabled]) {
+    background-color: #138496;
+}
+
+
+#statusMessage {
+    margin-top: 1em;
+    margin-bottom: 1.5em; /* Increased margin */
+    padding: 0.75em; /* Increased padding */
+    border-radius: 4px;
+    min-height: 1.5em;
+    text-align: center;
+    font-weight: bold;
+}
+
+#tableContainer {
+    width: 100%;
+    overflow-x: auto; /* Ensure horizontal scroll for the table container */
+}
+
+#resultsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+    font-size: 0.9em;
+    /* min-width: 800px; */ /* Ensure table has a min-width if content is sparse */
+}
+
+#resultsTable th, #resultsTable td {
+    border: 1px solid #dee2e6;
+    padding: 8px 10px; /* Adjusted padding */
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap; /* Prevent text wrapping in cells, rely on scroll */
+}
+
+#resultsTable th {
+    background-color: #e9ecef;
+    font-weight: bold;
+    position: sticky; /* Make headers sticky */
+    top: 0;           /* Stick to the top of the scrollable container */
+    z-index: 1;       /* Ensure headers are above table content during scroll */
+}
+
+#resultsTable tbody tr:nth-child(odd) {
+    background-color: #f8f9fa;
+}
+
+#resultsTable tbody tr:hover {
+    background-color: #e2e6ea;
+}
+
+/* Styles for IP address cells */
+#resultsTable td input[type="text"] {
+    width: calc(100% - 90px); /* Adjusted based on button sizes and padding */
+    min-width: 100px; /* Ensure input is usable */
+    padding: 6px; /* Slightly increased padding */
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin-right: 5px;
+    box-sizing: border-box;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.missing-ip {
+    background-color: #fff3cd; /* Bootstrap's warning yellow, softer */
+    border-color: #ffeeba;
+}
+
+.editing-ip {
+    background-color: #e6f7ff;
+    border-color: #007bff;
+}
+
+.edit-ip-button, .copy-ip-button, .save-ip-button {
+    padding: 6px 8px; /* Slightly increased padding */
+    font-size: 0.85em; /* Slightly increased font size */
+    margin-left: 3px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: 1px solid #ced4da;
+    min-width: 35px; /* Ensure copy button is wide enough for icon */
+    text-align: center;
+}
+
+.edit-ip-button {
+    background-color: #f0f0f0;
+}
+.edit-ip-button:hover:not([disabled]) {
+    background-color: #e0e0e0;
+}
+
+.save-ip-button {
+    background-color: #28a745;
+    color: white;
+}
+.save-ip-button:hover:not([disabled]) {
+    background-color: #218838;
+}
+
+.copy-ip-button {
+    background-color: #f0f0f0;
+}
+.copy-ip-button:hover:not([disabled]) {
+    background-color: #e0e0e0;
+}
+
+/* Ping status cell styles */
+.ping-ok { color: #155724; font-weight: bold; }
+.ping-fail { color: #721c24; font-weight: bold; }
+.ping-unknown { color: #856404; } /* Default color for unknown status */
+
+/* Row status highlights */
+tr.row-ok { background-color: #d4edda !important; } /* Bootstrap success green */
+tr.row-fail-partial { background-color: #fff3cd !important; } /* Bootstrap warning yellow */
+tr.row-fail-full { background-color: #f8d7da !important; } /* Bootstrap danger red */
+
+/* Toast Notification Styling */
+#toastNotification.toast {
+    visibility: hidden;
+    min-width: 250px;
+    max-width: 90%;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1000; /* Ensure toast is above other content like sticky headers */
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1em;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+}
+
+#toastNotification.toast.show {
+    visibility: visible;
+    animation: fadeIn 0.5s, fadeOut 0.5s 1.5s forwards; /* Use forwards to keep end state */
+}
+
+@keyframes fadeIn {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadeOut {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+/* Utility class */
+.hidden {
+    display: none !important;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    body {
+        padding: 10px; /* Reduce body padding */
+    }
+    .app-container {
+        padding: 1em; /* Reduce app container padding */
+    }
+    #controlsBar {
+        flex-direction: column;
+        align-items: stretch; /* Make items take full width */
+    }
+    #controlsBar > * { /* Ensure all direct children stack properly */
+        width: 100%;
+        margin-bottom: 8px; /* Add some space between stacked controls */
+        box-sizing: border-box; /* Ensure padding/border included in width */
+    }
+    #controlsBar input[type="file"] {
+        margin-right: 0; /* Remove right margin if it was set for inline */
+    }
+    #projectDashboard input[type="text"] {
+        width: 100%; /* Full width on small screens */
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    #projectDashboard button {
+        width: 100%; /* Full width button */
+    }
+    #resultsTable th, #resultsTable td {
+        padding: 6px 8px; /* Reduce padding in table cells */
+        font-size: 0.85em; /* Slightly smaller font for table content */
+    }
+    #resultsTable td input[type="text"] {
+        width: calc(100% - 75px); /* Adjust for smaller buttons or less space */
+        min-width: 80px;
+    }
+    .edit-ip-button, .copy-ip-button, .save-ip-button {
+        padding: 5px 6px;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    #projectDetailView h2#projectDetailTitle {
+        font-size: 1.2em; /* Reduce title size */
+    }
+    #controlsBar button, #controlsBar select, #controlsBar input[type="file"] {
+        font-size: 0.85em; /* Smaller font for controls */
+        padding: 6px 10px;
+    }
+     #resultsTable th, #resultsTable td {
+        padding: 4px 6px; /* Further reduce padding */
+    }
+    #resultsTable td input[type="text"] {
+        width: calc(100% - 65px); /* Further adjust for very small screens */
+        min-width: 60px;
+    }
+     .edit-ip-button, .copy-ip-button, .save-ip-button {
+        padding: 4px 5px;
+        font-size: 0.75em; /* Even smaller buttons */
+        min-width: 30px;
+    }
+}
