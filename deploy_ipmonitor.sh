@@ -23,7 +23,7 @@ NGINX_SERVER_NAME="_" # Replace with your_domain.com or server_ip if desired
 echo "Starting IP Monitor application deployment..."
 
 # Ensure the script is run as root/sudo
-if [ "\$EUID" -ne 0 ]; then
+if [[ \$(id -u) -ne 0 ]]; then
   echo "Please run this script with sudo or as root."
   exit 1
 fi
@@ -31,6 +31,7 @@ fi
 # 1. Check if source directory exists
 if [ ! -d "\$APP_SOURCE_DIR" ]; then
   echo "Error: Application source directory '\$APP_SOURCE_DIR' not found."
+  echo "This directory should be located in the same place as the deploy_ipmonitor.sh script, or an absolute path should be configured in APP_SOURCE_DIR."
   echo "Please create it and place the application files (index.html, login.html, style.css, script.js, lib/ directory) inside."
   exit 1
 fi
