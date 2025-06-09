@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+    <title>Project {{ project }}</title>
+</head>
+<body>
+    <a href="/dashboard">Back to Dashboard</a>
+    <h1>Project {{ project }}</h1>
+
+    <form method="post" action="/project/{{ project }}/upload" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Upload CSV</button>
+    </form>
+
+    {% if running %}
+        <a href="/project/{{ project }}/stop">Stop Ping</a>
+    {% else %}
+        <form action="/project/{{ project }}/start" method="get">
+            Interval (sec): <input type="number" name="interval" value="10">
+            <button type="submit">Start Ping</button>
+        </form>
+    {% endif %}
+
+    <a href="/project/{{ project }}/export">Export</a>
+
+    <table border="1">
+        <tr>
+            <th>Server</th><th>Primary IP</th><th>IPMI IP</th><th>Last Ping Primary</th><th>Last Ping IPMI</th>
+        </tr>
+        {% for srv in servers %}
+        <tr>
+            <td>{{ srv.name }}</td>
+            <td>{{ srv.primary }}</td>
+            <td>{{ srv.ipmi }}</td>
+            <td>{{ last.get(srv.primary, '') }}</td>
+            <td>{{ last.get(srv.ipmi, '') }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul>
+        {% for msg in messages %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+</body>
+</html>
