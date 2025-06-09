@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Projects</h1>
+    <form method="post" action="/add_project">
+        <input type="text" name="project" placeholder="New project">
+        <button type="submit">Add</button>
+    </form>
+    <ul>
+    {% for p in projects %}
+        <li><a href="/project/{{ p }}">{{ p }}</a>
+            <form method="post" action="/delete_project/{{ p }}" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
