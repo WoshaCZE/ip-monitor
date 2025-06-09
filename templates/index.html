@@ -59,8 +59,14 @@ function updateStatus() {
       rows.forEach((row, i) => {
         const tr = document.querySelector(`tr[data-index="${i}"]`);
         if (!tr) return;
-        tr.querySelector('.primary-ip').textContent = row.primary_ip;
-        tr.querySelector('.ipmi-ip').textContent = row.ipmi_ip;
+        const primaryCell = tr.querySelector('.primary-ip');
+        const ipmiCell = tr.querySelector('.ipmi-ip');
+        primaryCell.textContent = row.primary_ip;
+        ipmiCell.textContent = row.ipmi_ip;
+        primaryCell.classList.toggle('up', row.primary_up === true);
+        primaryCell.classList.toggle('down', row.primary_up === false);
+        ipmiCell.classList.toggle('up', row.ipmi_up === true);
+        ipmiCell.classList.toggle('down', row.ipmi_up === false);
         tr.querySelector('.last-primary').textContent = row.last_primary !== null ? row.last_primary + 's' : '';
         tr.querySelector('.last-ipmi').textContent = row.last_ipmi !== null ? row.last_ipmi + 's' : '';
       });
