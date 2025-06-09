@@ -102,7 +102,20 @@ document.querySelectorAll('.copy-primary').forEach(btn => {
     const tr = e.target.closest('tr');
     const text = tr.querySelector('.primary-ip .ip-value').textContent;
     if (text) {
-      navigator.clipboard.writeText(text).then(() => alert('Copied'));
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied');
+      }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert('Copied');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      });
     }
   });
 });
@@ -112,7 +125,20 @@ document.querySelectorAll('.copy-ipmi').forEach(btn => {
     const tr = e.target.closest('tr');
     const text = tr.querySelector('.ipmi-ip .ip-value').textContent;
     if (text) {
-      navigator.clipboard.writeText(text).then(() => alert('Copied'));
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied');
+      }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert('Copied');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      });
     }
   });
 });
