@@ -13,7 +13,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Shared state
 data_lock = threading.Lock()
-servers = []  # list of dicts with keys: name, primary_ip, ipmi_ip, last_primary, last_ipmi
+servers = []  # list of dicts with keys: name, primary_ip, ipmi_ip, last_primary, last_ipmi, primary_up, ipmi_up
 original_df = None
 source_file = None
 
@@ -40,7 +40,9 @@ def load_file(path):
             'primary_ip': primary,
             'ipmi_ip': ipmi,
             'last_primary': None,
-            'last_ipmi': None
+            'last_ipmi': None,
+            'primary_up': None,
+            'ipmi_up': None
         })
     with data_lock:
         servers = temp
@@ -82,8 +84,10 @@ def ping_worker():
             if ip and allowed_to_ping(s['name']):
                 last = s['last_ipmi']
                 if not last or time.time() - last >= 60:
-                    if ping_ip(ip):
-                        with data_lock:
+                    success = ping_ip(ip)
+                    with data_lock:
+                        servers[idx]['ipmi_up'] = success
+                        if success:
                             servers[idx]['last_ipmi'] = time.time()
         # sleep according to interval
         for _ in range(interval):
@@ -93,8 +97,10 @@ def ping_worker():
 
 
 def ping_primary(idx, ip):
-    if ping_ip(ip):
-        with data_lock:
+    success = ping_ip(ip)
+    with data_lock:
+        servers[idx]['primary_up'] = success
+        if success:
             servers[idx]['last_primary'] = time.time()
 
 
@@ -149,7 +155,9 @@ def status():
                 'primary_ip': s['primary_ip'],
                 'ipmi_ip': s['ipmi_ip'],
                 'last_primary': lp,
-                'last_ipmi': li
+                'last_ipmi': li,
+                'primary_up': s['primary_up'],
+                'ipmi_up': s['ipmi_up']
             })
     return jsonify(data)
 
@@ -164,9 +172,11 @@ def update_ip():
             if field == 'primary':
                 servers[idx]['primary_ip'] = value
                 servers[idx]['last_primary'] = None
+                servers[idx]['primary_up'] = None
             else:
                 servers[idx]['ipmi_ip'] = value
                 servers[idx]['last_ipmi'] = None
+                servers[idx]['ipmi_up'] = None
     return ('', 204)
 
 
