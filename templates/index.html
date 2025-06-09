@@ -20,7 +20,11 @@
 <table id="data-table">
   <thead>
     <tr>
-      <th>Server</th><th>Primary IP</th><th>Last Ping Primary IP</th><th>IPMI IP</th><th>Last Ping IPMI IP</th><th></th>
+      <th>Server</th>
+      <th>Primary IP</th>
+      <th>Last Ping Primary IP</th>
+      <th>IPMI IP</th>
+      <th>Last Ping IPMI IP</th>
     </tr>
   </thead>
   <tbody>
@@ -28,23 +32,27 @@
     <tr data-index="{{ loop.index0 }}" class="row">
       <td class="server-name">
         {% if s.name.startswith('DP') %}
-          <a href="https://dapa.datapacket.com/server/{{ s.name.split('-')[1] }}" target="_blank">{{ s.name }}</a>
+          <a href="https://dapa.datapacket.com/server/DP-{{ s.name.split('-')[1] }}" target="_blank">{{ s.name }}</a>
         {% else %}
           {{ s.name }}
         {% endif %}
       </td>
-      <td class="primary-ip">{{ s.primary_ip }}</td>
-      <td class="last-primary"></td>
-      <td class="ipmi-ip">{{ s.ipmi_ip }}</td>
-      <td class="last-ipmi"></td>
-      <td>
+      <td class="primary-ip">
+        <span class="ip-value">{{ s.primary_ip }}</span>
         {% if allowed_to_ping(s.name) %}
         <button class="copy-primary" title="Copy Primary"><i class="fa fa-copy"></i></button>
         <button class="edit-primary" title="Edit Primary"><i class="fa fa-gear"></i></button>
+        {% endif %}
+      </td>
+      <td class="last-primary"></td>
+      <td class="ipmi-ip">
+        <span class="ip-value">{{ s.ipmi_ip }}</span>
+        {% if allowed_to_ping(s.name) %}
         <button class="copy-ipmi" title="Copy IPMI"><i class="fa fa-copy"></i></button>
         <button class="edit-ipmi" title="Edit IPMI"><i class="fa fa-gear"></i></button>
         {% endif %}
       </td>
+      <td class="last-ipmi"></td>
     </tr>
     {% endfor %}
   </tbody>
@@ -61,12 +69,14 @@ function updateStatus() {
         if (!tr) return;
         const primaryCell = tr.querySelector('.primary-ip');
         const ipmiCell = tr.querySelector('.ipmi-ip');
-        primaryCell.textContent = row.primary_ip;
-        ipmiCell.textContent = row.ipmi_ip;
+        primaryCell.querySelector('.ip-value').textContent = row.primary_ip;
+        ipmiCell.querySelector('.ip-value').textContent = row.ipmi_ip;
         primaryCell.classList.toggle('up', row.primary_up === true);
         primaryCell.classList.toggle('down', row.primary_up === false);
         ipmiCell.classList.toggle('up', row.ipmi_up === true);
         ipmiCell.classList.toggle('down', row.ipmi_up === false);
+        const nameCell = tr.querySelector('.server-name');
+        nameCell.classList.toggle('up', row.primary_up === true && row.ipmi_up === true);
         tr.querySelector('.last-primary').textContent = row.last_primary !== null ? row.last_primary + 's' : '';
         tr.querySelector('.last-ipmi').textContent = row.last_ipmi !== null ? row.last_ipmi + 's' : '';
       });
@@ -90,7 +100,7 @@ document.getElementById('export-btn').addEventListener('click', () => { window.l
 document.querySelectorAll('.copy-primary').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const tr = e.target.closest('tr');
-    const text = tr.querySelector('.primary-ip').textContent;
+    const text = tr.querySelector('.primary-ip .ip-value').textContent;
     if (text) {
       navigator.clipboard.writeText(text).then(() => alert('Copied'));
     }
@@ -100,7 +110,7 @@ document.querySelectorAll('.copy-primary').forEach(btn => {
 document.querySelectorAll('.copy-ipmi').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const tr = e.target.closest('tr');
-    const text = tr.querySelector('.ipmi-ip').textContent;
+    const text = tr.querySelector('.ipmi-ip .ip-value').textContent;
     if (text) {
       navigator.clipboard.writeText(text).then(() => alert('Copied'));
     }
@@ -111,7 +121,7 @@ document.querySelectorAll('.edit-primary').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const tr = e.target.closest('tr');
     const idx = tr.getAttribute('data-index');
-    const ip = prompt('New Primary IP', tr.querySelector('.primary-ip').textContent);
+    const ip = prompt('New Primary IP', tr.querySelector('.primary-ip .ip-value').textContent);
     if (ip !== null) {
       fetch('/update_ip', {method:'POST', body: new URLSearchParams({index: idx, field:'primary', value: ip})}).then(updateStatus);
     }
@@ -122,7 +132,7 @@ document.querySelectorAll('.edit-ipmi').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const tr = e.target.closest('tr');
     const idx = tr.getAttribute('data-index');
-    const ip = prompt('New IPMI IP', tr.querySelector('.ipmi-ip').textContent);
+    const ip = prompt('New IPMI IP', tr.querySelector('.ipmi-ip .ip-value').textContent);
     if (ip !== null) {
       fetch('/update_ip', {method:'POST', body: new URLSearchParams({index: idx, field:'ipmi', value: ip})}).then(updateStatus);
     }

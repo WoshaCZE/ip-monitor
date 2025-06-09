@@ -51,6 +51,8 @@ def load_file(path):
 def allowed_to_ping(name):
     return name.startswith('DP') or name.startswith('CDN77')
 
+app.jinja_env.globals.update(allowed_to_ping=allowed_to_ping)
+
 
 def ping_ip(ip):
     try:
@@ -196,4 +198,4 @@ def export():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
