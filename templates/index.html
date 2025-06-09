@@ -1,0 +1,129 @@
+{% extends 'layout.html' %}
+{% block body %}
+<h1>IP Monitor</h1>
+<div class="controls">
+  <form id="upload-form" method="post" enctype="multipart/form-data" action="/upload">
+    <input type="file" name="file" id="file-input" accept=".csv,.xlsx">
+    <button type="submit">Upload</button>
+  </form>
+  <select id="interval-select">
+    <option value="5" {% if interval==5 %}selected{% endif %}>5s</option>
+    <option value="10" {% if interval==10 %}selected{% endif %}>10s</option>
+    <option value="15" {% if interval==15 %}selected{% endif %}>15s</option>
+    <option value="30" {% if interval==30 %}selected{% endif %}>30s</option>
+    <option value="60" {% if interval==60 %}selected{% endif %}>1m</option>
+  </select>
+  <button id="start-btn">Start</button>
+  <button id="stop-btn">Stop</button>
+  <button id="export-btn">Export</button>
+</div>
+<table id="data-table">
+  <thead>
+    <tr>
+      <th>Server</th><th>Primary IP</th><th>Last Ping Primary IP</th><th>IPMI IP</th><th>Last Ping IPMI IP</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in servers %}
+    <tr data-index="{{ loop.index0 }}" class="row">
+      <td class="server-name">
+        {% if s.name.startswith('DP') %}
+          <a href="https://dapa.datapacket.com/server/{{ s.name.split('-')[1] }}" target="_blank">{{ s.name }}</a>
+        {% else %}
+          {{ s.name }}
+        {% endif %}
+      </td>
+      <td class="primary-ip">{{ s.primary_ip }}</td>
+      <td class="last-primary"></td>
+      <td class="ipmi-ip">{{ s.ipmi_ip }}</td>
+      <td class="last-ipmi"></td>
+      <td>
+        {% if allowed_to_ping(s.name) %}
+        <button class="copy-primary" title="Copy Primary"><i class="fa fa-copy"></i></button>
+        <button class="edit-primary" title="Edit Primary"><i class="fa fa-gear"></i></button>
+        <button class="copy-ipmi" title="Copy IPMI"><i class="fa fa-copy"></i></button>
+        <button class="edit-ipmi" title="Edit IPMI"><i class="fa fa-gear"></i></button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<script>
+let running = {{ 'true' if running else 'false' }};
+let poller;
+function updateStatus() {
+  fetch('/status')
+    .then(r => r.json())
+    .then(rows => {
+      rows.forEach((row, i) => {
+        const tr = document.querySelector(`tr[data-index="${i}"]`);
+        if (!tr) return;
+        tr.querySelector('.primary-ip').textContent = row.primary_ip;
+        tr.querySelector('.ipmi-ip').textContent = row.ipmi_ip;
+        tr.querySelector('.last-primary').textContent = row.last_primary !== null ? row.last_primary + 's' : '';
+        tr.querySelector('.last-ipmi').textContent = row.last_ipmi !== null ? row.last_ipmi + 's' : '';
+      });
+    });
+}
+function startPolling() {
+  if (running) return;
+  running = true;
+  fetch('/start_ping', {method: 'POST', body: new URLSearchParams({interval: document.getElementById('interval-select').value})});
+  poller = setInterval(updateStatus, 1000);
+}
+function stopPolling() {
+  running = false;
+  fetch('/stop_ping', {method: 'POST'});
+  clearInterval(poller);
+}
+document.getElementById('start-btn').addEventListener('click', startPolling);
+document.getElementById('stop-btn').addEventListener('click', stopPolling);
+document.getElementById('export-btn').addEventListener('click', () => { window.location = '/export'; });
+
+document.querySelectorAll('.copy-primary').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const text = tr.querySelector('.primary-ip').textContent;
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => alert('Copied'));
+    }
+  });
+});
+
+document.querySelectorAll('.copy-ipmi').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const text = tr.querySelector('.ipmi-ip').textContent;
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => alert('Copied'));
+    }
+  });
+});
+
+document.querySelectorAll('.edit-primary').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const idx = tr.getAttribute('data-index');
+    const ip = prompt('New Primary IP', tr.querySelector('.primary-ip').textContent);
+    if (ip !== null) {
+      fetch('/update_ip', {method:'POST', body: new URLSearchParams({index: idx, field:'primary', value: ip})}).then(updateStatus);
+    }
+  });
+});
+
+document.querySelectorAll('.edit-ipmi').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const idx = tr.getAttribute('data-index');
+    const ip = prompt('New IPMI IP', tr.querySelector('.ipmi-ip').textContent);
+    if (ip !== null) {
+      fetch('/update_ip', {method:'POST', body: new URLSearchParams({index: idx, field:'ipmi', value: ip})}).then(updateStatus);
+    }
+  });
+});
+if (running) {
+  poller = setInterval(updateStatus, 1000);
+}
+</script>
+{% endblock %}
