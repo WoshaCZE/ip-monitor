@@ -1,8 +1,7 @@
 import os
 import time
 import threading
-import subprocess
-import ping3
+from ping3 import ping
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, jsonify, send_file
 import pandas as pd
@@ -55,10 +54,10 @@ def allowed_to_ping(name):
 app.jinja_env.globals.update(allowed_to_ping=allowed_to_ping)
 
 
-def ping_ip(ip):
+def ping_ip(address):
     """Return True if the IP responds to a quick ping."""
     try:
-        return ping3.ping(ip, timeout=1) is not None
+        return ping(address, timeout=1) is not None
     except Exception:
         return False
 
@@ -70,28 +69,26 @@ def ping_worker():
         with data_lock:
             current = list(enumerate(servers))
             interval = ping_interval
-        # ping primary IPs in groups of 10
-        primaries = [(i, s['primary_ip']) for i, s in current if s['primary_ip'] and allowed_to_ping(s['name'])]
-        for start in range(0, len(primaries), 10):
-            group = primaries[start:start+10]
-            threads = []
-            for idx, ip in group:
+        threads = []
+        # ping all primary IPs
+        for idx, s in current:
+            ip = s['primary_ip']
+            if ip and allowed_to_ping(s['name']):
                 t = threading.Thread(target=ping_primary, args=(idx, ip))
                 t.start()
                 threads.append(t)
-            for t in threads:
-                t.join()
         # ping IPMI IPs once per minute
         for idx, s in current:
             ip = s['ipmi_ip']
             if ip and allowed_to_ping(s['name']):
                 last = s['last_ipmi']
                 if not last or time.time() - last >= 60:
-                    success = ping_ip(ip)
-                    with data_lock:
-                        servers[idx]['ipmi_up'] = success
-                        if success:
-                            servers[idx]['last_ipmi'] = time.time()
+                    t = threading.Thread(target=ping_ipmi, args=(idx, ip))
+                    t.start()
+                    threads.append(t)
+        # wait for all pings to finish
+        for t in threads:
+            t.join()
         # sleep according to interval
         for _ in range(interval):
             if not ping_running:
@@ -105,6 +102,14 @@ def ping_primary(idx, ip):
         servers[idx]['primary_up'] = success
         if success:
             servers[idx]['last_primary'] = time.time()
+
+
+def ping_ipmi(idx, ip):
+    success = ping_ip(ip)
+    with data_lock:
+        servers[idx]['ipmi_up'] = success
+        if success:
+            servers[idx]['last_ipmi'] = time.time()
 
 
 @app.route('/')
