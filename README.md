@@ -10,7 +10,7 @@ information and monitor reachability of the server IP addresses.
 
 ## Requirements
 - Python 3.10+
-- The packages listed in `requirements.txt`.
+- The packages listed in `requirements.txt` (including `ping3`).
 
 ## Running
 1. Install Python dependencies
