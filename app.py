@@ -2,6 +2,7 @@ import os
 import time
 import threading
 import subprocess
+import ping3
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, jsonify, send_file
 import pandas as pd
@@ -55,9 +56,9 @@ app.jinja_env.globals.update(allowed_to_ping=allowed_to_ping)
 
 
 def ping_ip(ip):
+    """Return True if the IP responds to a quick ping."""
     try:
-        res = subprocess.run(['ping', '-c', '3', '-W', '1', ip], stdout=subprocess.DEVNULL)
-        return res.returncode == 0
+        return ping3.ping(ip, timeout=1) is not None
     except Exception:
         return False
 
