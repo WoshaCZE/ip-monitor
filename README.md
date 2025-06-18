@@ -28,7 +28,7 @@ created in the same directory with the suffix `_export.csv`.
 
 ## Node.js version
 
-An Express implementation is available in `server.js`.
+An Express implementation is available in `server.js` and requires Node.js 20 or newer.
 
 1. Install dependencies
    ```bash
