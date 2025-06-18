@@ -25,3 +25,18 @@ information and monitor reachability of the server IP addresses.
 
 Uploaded files are stored in the `uploads` directory. Exported files will be
 created in the same directory with the suffix `_export.csv`.
+
+## Node.js version
+
+An Express implementation is available in `server.js`.
+
+1. Install dependencies
+   ```bash
+   npm install
+   ```
+2. Start the server
+   ```bash
+   node server.js
+   ```
+
+The routes mirror the Flask version and files are saved in the same `uploads` directory.
