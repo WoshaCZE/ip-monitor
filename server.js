@@ -164,7 +164,6 @@ app.post('/update_ip', express.urlencoded({ extended: true }), (req, res) => {
 
 app.get('/export', (req, res) => {
   if (!originalData.length) return res.status(400).send('No data');
-  const now = Date.now();
   const rows = originalData.map((r, i) => {
     const srv = servers[i] || {};
     return [
