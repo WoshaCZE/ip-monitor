@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IP Monitor</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<h1>IP Monitor</h1>
+<div class="controls">
+  <form id="upload-form" method="post" enctype="multipart/form-data" action="/upload">
+    <input type="file" name="file" id="file-input" accept=".csv,.xlsx">
+    <button type="submit">Upload</button>
+  </form>
+  <select id="interval-select">
+    <option value="5" <%= interval==5 ? 'selected' : '' %>>5s</option>
+    <option value="10" <%= interval==10 ? 'selected' : '' %>>10s</option>
+    <option value="15" <%= interval==15 ? 'selected' : '' %>>15s</option>
+    <option value="30" <%= interval==30 ? 'selected' : '' %>>30s</option>
+    <option value="60" <%= interval==60 ? 'selected' : '' %>>1m</option>
+  </select>
+  <button id="start-btn">Start</button>
+  <button id="stop-btn">Stop</button>
+  <button id="export-btn">Export</button>
+</div>
+<table id="data-table">
+  <thead>
+    <tr>
+      <th>Server</th>
+      <th>Primary IP</th>
+      <th>Last Ping Primary IP</th>
+      <th>IPMI IP</th>
+      <th>Last Ping IPMI IP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% servers.forEach(function(s, index){ %>
+    <tr data-index="<%= index %>" class="row">
+      <td class="server-name">
+        <% if (s.name.startsWith('DP')) { %>
+          <a href="https://dapa.datapacket.com/server/DP-<%= s.name.split('-')[1] %>" target="_blank"><%= s.name %></a>
+        <% } else { %>
+          <%= s.name %>
+        <% } %>
+      </td>
+      <td class="primary-ip">
+        <span class="ip-value"><%= s.primary_ip %></span>
+        <% if (allowedToPing(s.name)) { %>
+        <button class="copy-primary" title="Copy Primary"><i class="fa fa-copy"></i></button>
+        <button class="edit-primary" title="Edit Primary"><i class="fa fa-gear"></i></button>
+        <% } %>
+      </td>
+      <td class="last-primary"></td>
+      <td class="ipmi-ip">
+        <span class="ip-value"><%= s.ipmi_ip %></span>
+        <% if (allowedToPing(s.name)) { %>
+        <button class="copy-ipmi" title="Copy IPMI"><i class="fa fa-copy"></i></button>
+        <button class="edit-ipmi" title="Edit IPMI"><i class="fa fa-gear"></i></button>
+        <% } %>
+      </td>
+      <td class="last-ipmi"></td>
+    </tr>
+    <% }) %>
+  </tbody>
+</table>
+<script>
+let running = <%= running ? 'true' : 'false' %>;
+let poller;
+function updateStatus() {
+  fetch('/status')
+    .then(r => r.json())
+    .then(rows => {
+      rows.forEach((row, i) => {
+        const tr = document.querySelector(`tr[data-index="${i}"]`);
+        if (!tr) return;
+        const primaryCell = tr.querySelector('.primary-ip');
+        const ipmiCell = tr.querySelector('.ipmi-ip');
+        primaryCell.querySelector('.ip-value').textContent = row.primary_ip;
+        ipmiCell.querySelector('.ip-value').textContent = row.ipmi_ip;
+        primaryCell.classList.toggle('up', row.primary_up === true);
+        primaryCell.classList.toggle('down', row.primary_up === false);
+        ipmiCell.classList.toggle('up', row.ipmi_up === true);
+        ipmiCell.classList.toggle('down', row.ipmi_up === false);
+        const nameCell = tr.querySelector('.server-name');
+        nameCell.classList.toggle('up', row.primary_up === true && row.ipmi_up === true);
+        tr.querySelector('.last-primary').textContent = row.last_primary !== null ? row.last_primary + 's' : '';
+        tr.querySelector('.last-ipmi').textContent = row.last_ipmi !== null ? row.last_ipmi + 's' : '';
+      });
+    });
+}
+function startPolling() {
+  if (running) return;
+  running = true;
+  fetch('/start_ping', {method: 'POST', body: new URLSearchParams({interval: document.getElementById('interval-select').value})});
+  poller = setInterval(updateStatus, 1000);
+}
+function stopPolling() {
+  running = false;
+  fetch('/stop_ping', {method: 'POST'});
+  clearInterval(poller);
+}
+document.getElementById('start-btn').addEventListener('click', startPolling);
+document.getElementById('stop-btn').addEventListener('click', stopPolling);
+document.getElementById('export-btn').addEventListener('click', () => { window.location = '/export'; });
+
+document.querySelectorAll('.copy-primary').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const text = tr.querySelector('.primary-ip .ip-value').textContent;
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied');
+      }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert('Copied');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      });
+    }
+  });
+});
+
+document.querySelectorAll('.copy-ipmi').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const text = tr.querySelector('.ipmi-ip .ip-value').textContent;
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied');
+      }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert('Copied');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      });
+    }
+  });
+});
+
+document.querySelectorAll('.edit-primary').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const idx = tr.getAttribute('data-index');
+    const ip = prompt('New Primary IP', tr.querySelector('.primary-ip .ip-value').textContent);
+    if (ip !== null) {
+      fetch('/update_ip', {method:'POST', body: new URLSearchParams({index: idx, field:'primary', value: ip})}).then(updateStatus);
+    }
+  });
+});
+
+document.querySelectorAll('.edit-ipmi').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    const idx = tr.getAttribute('data-index');
+    const ip = prompt('New IPMI IP', tr.querySelector('.ipmi-ip .ip-value').textContent);
+    if (ip !== null) {
+      fetch('/update_ip', {method:'POST', body: new URLSearchParams({index: idx, field:'ipmi', value: ip})}).then(updateStatus);
+    }
+  });
+});
+if (running) {
+  poller = setInterval(updateStatus, 1000);
+}
+</script>
+</body>
+</html>
