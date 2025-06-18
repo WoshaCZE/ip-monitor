@@ -36,7 +36,7 @@ An Express implementation is available in `server.js`.
    ```
 2. Start the server
    ```bash
-   node server.js
+   npm start
    ```
 
 The routes mirror the Flask version and files are saved in the same `uploads` directory.

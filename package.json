@@ -2,9 +2,10 @@
   "name": "ip-monitor",
   "version": "1.0.0",
   "description": "This simple web application allows you to upload a CSV or XLSX file with server information and monitor reachability of the server IP addresses.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
